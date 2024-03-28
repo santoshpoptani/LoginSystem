@@ -1,10 +1,13 @@
 package com.example.loginwithjwt.security;
 
+
+
+import com.example.loginwithjwt.config.CorsFilter;
 import com.example.loginwithjwt.service.UserDetailServicesImpl;
-import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.annotation.Immutable;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,7 +20,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 
 @Configuration
@@ -28,12 +38,14 @@ public class SecurityConfig {
     private UserDetailServicesImpl userDetailServices;
     @Autowired
     private EntryPoint authEntryPoint;
-
     @Bean
     public SecurityFilter authFilter() {
         return new SecurityFilter();
     }
 
+    public CorsFilter asdfiler(){
+        return new CorsFilter();
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -52,8 +64,11 @@ public class SecurityConfig {
         return auth.getAuthenticationManager();
     }
 
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+
         httpSecurity
                 .csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(auth ->
@@ -63,8 +78,8 @@ public class SecurityConfig {
                                         "/",
                                         "/api/auth/signin",
                                         "/api/auth/signup",
-                                        "/api/v1/**",
-                                        "/api/v1/auth/**",
+                                        "/api/auth/**",
+                                        "/api/v1/all",
                                         "/v3/api-docs/**",
                                         "/v3/api-docs.yaml",
                                         "/swagger-ui/**",
@@ -75,6 +90,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(asdfiler(), ChannelProcessingFilter.class)
                 .addFilterBefore(authFilter(), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
 

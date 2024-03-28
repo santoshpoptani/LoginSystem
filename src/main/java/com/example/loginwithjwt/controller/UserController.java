@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1")
 public class UserController {
     @GetMapping("/all")
     public String allAccess() {
@@ -27,7 +27,7 @@ public class UserController {
         return "Moderator Content";
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public String adminAccess(){
         return "Admin Content";
